@@ -1,4 +1,4 @@
-package com.sistemaespecialista.sistemaespecialista.model;
+package com.sistemaespecialista.sistemaespecialista.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
