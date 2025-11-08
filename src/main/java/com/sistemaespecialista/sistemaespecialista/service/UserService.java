@@ -3,36 +3,31 @@ package com.sistemaespecialista.sistemaespecialista.service;
 
 import com.sistemaespecialista.sistemaespecialista.entities.RespostaEntity;
 import com.sistemaespecialista.sistemaespecialista.entities.UserEntity;
-import com.sistemaespecialista.sistemaespecialista.repository.RespostaRepository;
 import com.sistemaespecialista.sistemaespecialista.repository.UserRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class UserService {
 
-    private UserRepository userRepository;
-    private RespostaRepository respostaRepository;
+    private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository, RespostaRepository respostaRepository) {
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.respostaRepository = respostaRepository;
     }
 
-    public UserEntity salvarUsuarioComRespostas(UserEntity user, List<RespostaEntity> respostas){
-
-        try{
-            UserEntity userSalvo = userRepository.save(user);
-
-            for (RespostaEntity resposta : respostas) {
-                resposta.setUsuario(userSalvo);
-                respostaRepository.save(resposta);
+    public UserEntity salvarUsuarioComRespostas(UserEntity user) {
+        try {
+            if (user.getRespostas() != null) {
+                for (RespostaEntity resposta : user.getRespostas()) {
+                    resposta.setUsuario(user);
+                }
             }
-            return userSalvo;
-        }catch (Exception e){
-            System.out.println("Erro ao salvar o usuario e respostas:" + e.getMessage());
-            return null;
+
+            return userRepository.save(user);
+
+        } catch (Exception e) {
+            System.out.println("Erro ao salvar o usuario e respostas: " + e.getMessage());
+            throw e;
         }
     }
 }

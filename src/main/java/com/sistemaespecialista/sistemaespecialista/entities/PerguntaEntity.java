@@ -19,6 +19,4 @@ public class PerguntaEntity {
 
     private String pergunta; // o texto da pergunta
 
-    @OneToMany(mappedBy = "pergunta", cascade = CascadeType.ALL)
-    private List<RespostaEntity> respostas; // todas as respostas associadas a esta pergunta
 }
