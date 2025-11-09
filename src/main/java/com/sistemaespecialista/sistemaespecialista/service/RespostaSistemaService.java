@@ -30,8 +30,11 @@ public class RespostaSistemaService {
 
             float salario = user.getSalario();
             float gastoFixo = user.getGastoFixo();
-            float valorDisponivel = salario - gastoFixo;
+            float reservaAtual = user.getReserva();
+            float dividaAtual = user.getDivida();
+            String objetivoFinanceiro = user.getObjetivo();
 
+            float valorDisponivel = salario - gastoFixo;
             if (valorDisponivel <= 0) {
                 throw new RuntimeException("O usuário não possui saldo disponível após gastos fixos.");
             }
@@ -40,41 +43,67 @@ public class RespostaSistemaService {
             respostaSistema.setUsuario(user);
             respostaSistema.setValorGastosFixos(gastoFixo);
 
-            float divida = 0;
-            float reserva = 0;
-            float investimento = 0;
-            float objetivo = 0;
+            float divida = 0, reserva = 0, investimento = 0, objetivo = 0;
+            StringBuilder diagnostico = new StringBuilder("Análise do sistema: ");
 
             switch (user.getPerfil().toLowerCase()) {
                 case "conservador":
-                    divida = valorDisponivel * 0.40f;
-                    reserva = valorDisponivel * 0.30f;
-                    investimento = valorDisponivel * 0.20f;
-                    objetivo = valorDisponivel * 0.10f;
+                    divida = 0.40f;
+                    reserva = 0.30f;
+                    investimento = 0.20f;
+                    objetivo = 0.10f;
                     break;
-
                 case "moderado":
-                    divida = valorDisponivel * 0.30f;
-                    reserva = valorDisponivel * 0.25f;
-                    investimento = valorDisponivel * 0.30f;
-                    objetivo = valorDisponivel * 0.15f;
+                    divida = 0.30f;
+                    reserva = 0.25f;
+                    investimento = 0.30f;
+                    objetivo = 0.15f;
                     break;
-
                 case "arrojado":
-                    divida = valorDisponivel * 0.20f;
-                    reserva = valorDisponivel * 0.20f;
-                    investimento = valorDisponivel * 0.45f;
-                    objetivo = valorDisponivel * 0.15f;
+                    divida = 0.20f;
+                    reserva = 0.20f;
+                    investimento = 0.45f;
+                    objetivo = 0.15f;
                     break;
-
                 default:
                     throw new RuntimeException("Perfil inválido: " + user.getPerfil());
             }
 
-            respostaSistema.setValorQuitacaoDividas(roundTwoDecimals(divida));
-            respostaSistema.setValorReservaEmergencia(roundTwoDecimals(reserva));
-            respostaSistema.setValorInvestimentos(roundTwoDecimals(investimento));
-            respostaSistema.setValorObjetivo(roundTwoDecimals(objetivo));
+            float reservaNecessaria = gastoFixo * 6;
+            if (reservaAtual >= reservaNecessaria) {
+                diagnostico.append("Reserva de emergência completa. ");
+                float redistribuir = reserva;
+                reserva = 0;
+                float total = divida + investimento + objetivo;
+                divida += (divida / total) * redistribuir;
+                investimento += (investimento / total) * redistribuir;
+                objetivo += (objetivo / total) * redistribuir;
+            }
+
+            if (objetivoFinanceiro == null || objetivoFinanceiro.trim().isEmpty()) {
+                diagnostico.append("Sem objetivo financeiro definido. ");
+                float redistribuir = objetivo;
+                objetivo = 0;
+                float total = divida + investimento + reserva;
+                divida += (divida / total) * redistribuir;
+                investimento += (investimento / total) * redistribuir;
+                reserva += (reserva / total) * redistribuir;
+            }
+
+            if (dividaAtual <= 0) {
+                diagnostico.append("Sem dívidas registradas. ");
+                float redistribuir = divida;
+                divida = 0;
+                float total = reserva + investimento + objetivo;
+                reserva += (reserva / total) * redistribuir;
+                investimento += (investimento / total) * redistribuir;
+                objetivo += (objetivo / total) * redistribuir;
+            }
+
+            respostaSistema.setValorQuitacaoDividas(roundTwoDecimals(valorDisponivel * divida));
+            respostaSistema.setValorReservaEmergencia(roundTwoDecimals(valorDisponivel * reserva));
+            respostaSistema.setValorInvestimentos(roundTwoDecimals(valorDisponivel * investimento));
+            respostaSistema.setValorObjetivo(roundTwoDecimals(valorDisponivel * objetivo));
 
             return respostaSistemaRepository.save(respostaSistema);
 
