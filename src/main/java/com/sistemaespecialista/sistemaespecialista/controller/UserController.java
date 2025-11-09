@@ -1,12 +1,9 @@
 package com.sistemaespecialista.sistemaespecialista.controller;
 
-import com.sistemaespecialista.sistemaespecialista.entities.RespostaEntity;
 import com.sistemaespecialista.sistemaespecialista.entities.UserEntity;
 import com.sistemaespecialista.sistemaespecialista.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/users")
@@ -20,12 +17,12 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserEntity> salvarUsuarioComRespostas(@RequestBody UserEntity user){
+    public ResponseEntity<UserEntity> salvarUsuario(@RequestBody UserEntity user){
         try{
-            UserEntity userSalvo = userService.salvarUsuarioComRespostas(user);
+            UserEntity userSalvo = userService.salvarUsuario(user);
             return ResponseEntity.ok(userSalvo);
         }catch (Exception e){
-            System.out.println("Erro ao salvar o usuario e respostas:" + e.getMessage());
+            System.out.println("Erro ao salvar o usuario:" + e.getMessage());
             return ResponseEntity.badRequest().build();
         }
     }

@@ -25,7 +25,4 @@ public class UserEntity {
     private float divida;
     private float reserva;
     private String objetivo;
-
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RespostaEntity> respostas;
 }
