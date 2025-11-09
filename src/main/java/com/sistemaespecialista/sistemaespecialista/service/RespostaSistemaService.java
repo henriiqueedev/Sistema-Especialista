@@ -21,7 +21,6 @@ public class RespostaSistemaService {
 
     public RespostaSistemaEntity gerarRespostaSistema(Long usuarioId) {
         try {
-            // 1. Buscar usuário
             Optional<UserEntity> optionalUser = userRepository.findById(usuarioId);
             if (optionalUser.isEmpty()) {
                 throw new RuntimeException("Usuário não encontrado!");
@@ -29,56 +28,62 @@ public class RespostaSistemaService {
 
             UserEntity user = optionalUser.get();
 
-            // 2. Calcular valor disponível após gasto fixo
-            float valorDisponivel = user.getSalario() - user.getGastoFixo();
+            float salario = user.getSalario();
+            float gastoFixo = user.getGastoFixo();
+            float valorDisponivel = salario - gastoFixo;
+
             if (valorDisponivel <= 0) {
                 throw new RuntimeException("O usuário não possui saldo disponível após gastos fixos.");
             }
 
-            // 3. Criar entidade de resposta do sistema
             RespostaSistemaEntity respostaSistema = new RespostaSistemaEntity();
             respostaSistema.setUsuario(user);
+            respostaSistema.setValorGastosFixos(gastoFixo);
 
             float divida = 0;
             float reserva = 0;
             float investimento = 0;
             float objetivo = 0;
 
-            // 4. Aplicar regras conforme o perfil
             switch (user.getPerfil().toLowerCase()) {
                 case "conservador":
-                    divida = valorDisponivel * 0.60f;
-                    reserva = valorDisponivel * 0.30f;
-                    investimento = valorDisponivel * 0.10f;
-                    break;
-                case "moderado":
                     divida = valorDisponivel * 0.40f;
                     reserva = valorDisponivel * 0.30f;
                     investimento = valorDisponivel * 0.20f;
                     objetivo = valorDisponivel * 0.10f;
                     break;
-                case "agressivo":
+
+                case "moderado":
+                    divida = valorDisponivel * 0.30f;
+                    reserva = valorDisponivel * 0.25f;
+                    investimento = valorDisponivel * 0.30f;
+                    objetivo = valorDisponivel * 0.15f;
+                    break;
+
+                case "arrojado":
                     divida = valorDisponivel * 0.20f;
                     reserva = valorDisponivel * 0.20f;
-                    investimento = valorDisponivel * 0.50f;
-                    objetivo = valorDisponivel * 0.10f;
+                    investimento = valorDisponivel * 0.45f;
+                    objetivo = valorDisponivel * 0.15f;
                     break;
+
                 default:
                     throw new RuntimeException("Perfil inválido: " + user.getPerfil());
             }
 
-            // 5. Definir valores calculados
-            respostaSistema.setPercentualQuitacaoDividas(divida);
-            respostaSistema.setPercentualReservaEmergencia(reserva);
-            respostaSistema.setPercentualInvestimentos(investimento);
-            respostaSistema.setPercentualObjetivo(objetivo);
+            respostaSistema.setValorQuitacaoDividas(roundTwoDecimals(divida));
+            respostaSistema.setValorReservaEmergencia(roundTwoDecimals(reserva));
+            respostaSistema.setValorInvestimentos(roundTwoDecimals(investimento));
+            respostaSistema.setValorObjetivo(roundTwoDecimals(objetivo));
 
-            // 6. Salvar no banco
             return respostaSistemaRepository.save(respostaSistema);
 
         } catch (Exception e) {
             System.out.println("Erro ao gerar respostas do sistema: " + e.getMessage());
-            throw e;
+            return null;
         }
+    }
+    private float roundTwoDecimals(float value) {
+        return Math.round(value * 100.0f) / 100.0f;
     }
 }

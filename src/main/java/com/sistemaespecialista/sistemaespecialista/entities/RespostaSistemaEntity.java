@@ -19,9 +19,18 @@ public class RespostaSistemaEntity {
     @JoinColumn(name = "usuario_id")
     private UserEntity usuario;
 
-    private float percentualGastosFixos;
-    private float percentualInvestimentos;
-    private float percentualQuitacaoDividas;
-    private float percentualReservaEmergencia;
-    private float percentualObjetivo;
+    @Column(name = "valor_gastos_fixos")
+    private float valorGastosFixos;
+
+    @Column(name = "valor_investimentos")
+    private float valorInvestimentos;
+
+    @Column(name = "valor_quitacao_dividas")
+    private float valorQuitacaoDividas;
+
+    @Column(name = "valor_reserva_emergencia")
+    private float valorReservaEmergencia;
+
+    @Column(name = "valor_objetivo")
+    private float valorObjetivo;
 }

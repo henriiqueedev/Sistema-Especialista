@@ -1,5 +1,6 @@
 package com.sistemaespecialista.sistemaespecialista.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,6 +20,7 @@ public class RespostaEntity {
 
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
+    @JsonIgnore
     private UserEntity usuario;
 
     @ManyToOne
