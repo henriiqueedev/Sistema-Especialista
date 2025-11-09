@@ -112,6 +112,11 @@ public class RespostaSistemaService {
             return null;
         }
     }
+
+    public Optional<RespostaSistemaEntity> buscarPorUsuarioId(Long usuarioId) {
+        return respostaSistemaRepository.findByUsuarioId(usuarioId);
+    }
+
     private float roundTwoDecimals(float value) {
         return Math.round(value * 100.0f) / 100.0f;
     }

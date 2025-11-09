@@ -2,6 +2,7 @@ package com.sistemaespecialista.sistemaespecialista.controller;
 
 import com.sistemaespecialista.sistemaespecialista.entities.RespostaSistemaEntity;
 import com.sistemaespecialista.sistemaespecialista.service.RespostaSistemaService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,6 +22,17 @@ public class RespostaSistemaController {
         } catch (Exception e) {
             System.out.println("Erro ao gerar resposta do sistema: " + e.getMessage());
             return null;
+        }
+    }
+    @GetMapping("/{usuarioId}")
+    public ResponseEntity<RespostaSistemaEntity> getRespostaSistema(@PathVariable Long usuarioId) {
+        try {
+            return respostaSistemaService.buscarPorUsuarioId(usuarioId)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            System.out.println("Erro ao buscar resposta do sistema: " + e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
     }
 }
